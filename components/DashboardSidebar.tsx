@@ -35,7 +35,7 @@ export default function Sidebar() {
     { name: "View Books", href: "/dashboard/books", icon: <ImBooks /> },
     {
       name: "Borrow / Return",
-      href: "/dashboard/transaction",
+      href: "/dashboard/borrows",
       icon: <GrTransaction />,
     },
   ];
@@ -85,69 +85,7 @@ export default function Sidebar() {
             </ul>
           </nav>
         </div>
-
-        {/* User Info + Toggle */}
-        <div className="mt-4 relative flex gap-2 items-center">
-          <div
-            className={`overflow-hidden whitespace-nowrap transition-all flex flex-col text-sm duration-300 transform ${
-              isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-            }`}
-          >
-            <span className="font-semibold">{user?.username}</span>
-            <span>{user?.email}</span>
-          </div>
-          <button
-            className={`overflow-hidden whitespace-nowrap transition-all flex flex-col text-sm duration-300 transform ${
-              isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-            }`}
-            onClick={() => setUserOptionsOption(!userOptionsOpen)}
-          >
-            <ChevronRight
-              className={`w-5 h-5 transition-transform duration-150 ${
-                userOptionsOpen ? "-rotate-180" : ""
-              }`}
-            />
-          </button>
-        </div>
       </aside>
-
-      {/* Floating User Menu */}
-      <div
-        className={`absolute bottom-2 left-66 z-50 w-40 rounded-md shadow-lg
-          bg-sidebar text-sidebar-foreground
-          transform transition-all duration-150 ease-in-out
-          ${
-            userOptionsOpen
-              ? "opacity-100 translate-x-0"
-              : "opacity-0 -translate-x-2 pointer-events-none"
-          }`}
-      >
-        <ul className="py-1">
-          <li>
-            <Link
-              href="/account"
-              className="flex items-center gap-2 px-4 py-2 text-sm rounded-md transition
-                hover:bg-accent hover:text-accent-foreground"
-            >
-              <UserIcon className="h-5 w-5" />
-              Account
-            </Link>
-          </li>
-          <li>
-            <button
-              onClick={() => {
-                localStorage.removeItem("userToken");
-                redirect("/auth");
-              }}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm rounded-md transition
-                hover:bg-accent hover:text-accent-foreground"
-            >
-              <LogOutIcon className="h-5 w-5" />
-              Logout
-            </button>
-          </li>
-        </ul>
-      </div>
     </div>
   );
 }
