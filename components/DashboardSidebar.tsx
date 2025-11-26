@@ -1,10 +1,7 @@
 "use client";
 
-import { ChevronRight, LucideMenu, Moon, Sun } from "lucide-react";
-import { useState, ReactNode, useEffect } from "react";
-import { MdPostAdd } from "react-icons/md";
-import { GiFiles } from "react-icons/gi";
-import { FiSettings, FiLogOut } from "react-icons/fi";
+import { ChevronRight, LucideMenu } from "lucide-react";
+import { useState, ReactNode } from "react";
 import Link from "next/link";
 import { UserIcon, LogOutIcon } from "lucide-react";
 import { getToken } from "@/lib/utils/auth";
@@ -16,6 +13,7 @@ import { GrTransaction } from "react-icons/gr";
 
 interface MenuItem {
   name: string;
+  href: string;
   icon: ReactNode;
 }
 
@@ -24,30 +22,31 @@ export default function Sidebar() {
   const [userOptionsOpen, setUserOptionsOption] = useState(false);
 
   const toggleSidebar = () => {
-    if (isOpen) {
-      setUserOptionsOption(false);
-    }
+    if (isOpen) setUserOptionsOption(false);
     setIsOpen(!isOpen);
   };
 
   const user = getToken();
-  //   const signOut = useAuthStore((state) => state.signOut);
-  //   const checkUser = useAuthStore((state) => state.checkUser);
 
   const menuItems: MenuItem[] = [
-    { name: "Add User", icon: <HiUserPlus /> },
-    { name: "Add Book", icon: <FaBook /> },
-    { name: "View Users", icon: <HiUsers /> },
-    { name: "View Books", icon: <ImBooks /> },
-    { name: "Borrow / Return", icon: <GrTransaction /> },
+    { name: "Add Member", href: "/dashboard/addmember", icon: <HiUserPlus /> },
+    { name: "Add Book", href: "/dashboard/addbook", icon: <FaBook /> },
+    { name: "View Members", href: "/dashboard/members", icon: <HiUsers /> },
+    { name: "View Books", href: "/dashboard/books", icon: <ImBooks /> },
+    {
+      name: "Borrow / Return",
+      href: "/dashboard/transaction",
+      icon: <GrTransaction />,
+    },
   ];
 
   return (
     <div id="dashboard" className="flex relative">
       <aside
-        className={`bg-muted flex flex-col justify-between border-r-slate-800 border-r-2 text-muted-foreground relative p-2 md:px-3 pt-4 min-h-screen overflow-hidden transition-[width] duration-300 ${
-          isOpen ? "w-64" : "w-16"
-        }`}
+        className={`flex flex-col justify-between relative p-2 md:px-3 pt-4 min-h-screen overflow-hidden transition-[width] duration-300
+          border-r border-sidebar-border 
+          bg-sidebar text-sidebar-foreground
+          ${isOpen ? "w-64" : "w-16"}`}
       >
         {/* Menu */}
         <div>
@@ -63,20 +62,25 @@ export default function Sidebar() {
           <nav className="pt-4 pl-1">
             <ul className="space-y-2">
               {menuItems.map((item) => (
-                <li key={item.name}>
-                  <div className="flex gap-4 items-center cursor-pointer rounded-md p-2 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                    <span className="text-2xl">{item.icon}</span>
-                    <span
-                      className={`overflow-hidden whitespace-nowrap transition-all duration-300 transform ${
-                        isOpen
-                          ? "opacity-100 translate-x-0"
-                          : "opacity-0 -translate-x-4"
-                      }`}
+                <Link href={item.href} key={item.name}>
+                  <li>
+                    <div
+                      className="flex gap-4 items-center cursor-pointer rounded-md p-2 transition
+                        hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     >
-                      {item.name}
-                    </span>
-                  </div>
-                </li>
+                      <span className="text-2xl">{item.icon}</span>
+                      <span
+                        className={`overflow-hidden whitespace-nowrap transition-all duration-300 transform ${
+                          isOpen
+                            ? "opacity-100 translate-x-0"
+                            : "opacity-0 -translate-x-4"
+                        }`}
+                      >
+                        {item.name}
+                      </span>
+                    </div>
+                  </li>
+                </Link>
               ))}
             </ul>
           </nav>
@@ -93,7 +97,7 @@ export default function Sidebar() {
             <span>{user?.email}</span>
           </div>
           <button
-            className={`overflow-hidden whitespace-nowrap transition-all flex flex-col text-sm duration-300 transform  ${
+            className={`overflow-hidden whitespace-nowrap transition-all flex flex-col text-sm duration-300 transform ${
               isOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
             }`}
             onClick={() => setUserOptionsOption(!userOptionsOpen)}
@@ -107,34 +111,36 @@ export default function Sidebar() {
         </div>
       </aside>
 
-      {/* Floating User Menu (outside sidebar) */}
+      {/* Floating User Menu */}
       <div
-        className={`absolute bottom-2 left-66 z-50 w-40 rounded-md bg-muted text-muted-foreground shadow-lg
-    transform transition-all duration-150 ease-in-out
-    ${
-      userOptionsOpen
-        ? "opacity-100 translate-x-0"
-        : "opacity-0 -translate-x-2 pointer-events-none"
-    }`}
+        className={`absolute bottom-2 left-66 z-50 w-40 rounded-md shadow-lg
+          bg-sidebar text-sidebar-foreground
+          transform transition-all duration-150 ease-in-out
+          ${
+            userOptionsOpen
+              ? "opacity-100 translate-x-0"
+              : "opacity-0 -translate-x-2 pointer-events-none"
+          }`}
       >
         <ul className="py-1">
           <li>
             <Link
               href="/account"
-              className="flex rounded-md items-center gap-2 px-4 py-2 text-sm transition  hover:bg-accent"
+              className="flex items-center gap-2 px-4 py-2 text-sm rounded-md transition
+                hover:bg-accent hover:text-accent-foreground"
             >
               <UserIcon className="h-5 w-5" />
               Account
             </Link>
           </li>
-
           <li>
             <button
               onClick={() => {
                 localStorage.removeItem("userToken");
                 redirect("/auth");
               }}
-              className="flex rounded-md items-center gap-2 w-full px-4 py-2 text-sm  hover:bg-accent"
+              className="flex items-center gap-2 w-full px-4 py-2 text-sm rounded-md transition
+                hover:bg-accent hover:text-accent-foreground"
             >
               <LogOutIcon className="h-5 w-5" />
               Logout

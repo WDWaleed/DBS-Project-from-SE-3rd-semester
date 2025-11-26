@@ -1,3 +1,8 @@
+25th November, 2025
+
+1. View memebers and books routes finished. Theme implemented.
+2. Next step: Add users and books
+
 24th November, 2025
 
 1. Create Next.js API routes for fetching data. Start with the simplest ones that show users and books. Though you will have to add filtering and search functionalities

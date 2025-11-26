@@ -1,4 +1,5 @@
 import { getConnection } from "@/lib/db";
+import { ResultSetHeader } from "mysql2";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -24,31 +25,47 @@ export async function POST(req: Request) {
     const body = await req.json();
     console.log("Request body:", body);
 
-    const { title, author, genre } = body;
+    const {
+      title,
+      author,
+      genre,
+      isbn,
+      publication_year,
+      shelf_location,
+      status,
+    } = body;
 
-    // Validate input
-    if (!title || !author || !genre) {
+    if (
+      !title ||
+      !author ||
+      !genre ||
+      !isbn ||
+      !publication_year ||
+      !shelf_location ||
+      !status
+    ) {
+      console.log(body);
+
       return NextResponse.json(
-        { error: "Missing title, author, or genre" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
     db = await getConnection();
 
-    try {
-      await db.execute(
-        "INSERT INTO books (title, author, genre) VALUES (?, ?, ?)",
-        [title, author, genre]
-      );
-    } catch (dbError: any) {
-      console.error("Database insert error:", dbError);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+    const [result] = await db.execute<ResultSetHeader>(
+      `INSERT INTO book (title, author, genre, isbn, publication_year, shelf_location, status)
+   VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [title, author, genre, isbn, publication_year, shelf_location, status]
+    );
 
-    return NextResponse.json({ message: "Book added successfully" });
+    return NextResponse.json({
+      success: true,
+      memberId: result.insertId,
+    });
   } catch (error: any) {
-    console.error("POST Error:", error);
+    console.error("Error adding book:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
