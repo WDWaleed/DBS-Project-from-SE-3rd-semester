@@ -1,10 +1,12 @@
 "use client";
 
 import Spinner from "@/components/atoms/Spinner";
+import { getErrorMessage } from "@/lib/utils/helpers";
 import axios from "axios";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { TbTransferIn } from "react-icons/tb";
 
 interface Borrow {
@@ -27,6 +29,14 @@ export default function Borrows() {
     category: "book_name",
   });
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newBorrowData, setNewBorrowData] = useState({
+    book_id: "",
+    member_id: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch borrows
   useEffect(() => {
     if (pathname !== "/dashboard/borrows") return;
 
@@ -45,12 +55,12 @@ export default function Borrows() {
     fetchBorrows();
   }, [pathname]);
 
+  // Filtering
   useEffect(() => {
     if (!searchFormData.query) {
       setFilteredBorrows(borrows);
       return;
     }
-
     const filtered = borrows.filter((borrow) => {
       const field = searchFormData.category as keyof Borrow;
       const value = borrow[field];
@@ -60,7 +70,6 @@ export default function Borrows() {
         .toLowerCase()
         .includes(searchFormData.query.toLowerCase());
     });
-
     setFilteredBorrows(filtered);
   }, [searchFormData, borrows]);
 
@@ -78,6 +87,7 @@ export default function Borrows() {
     setFilteredBorrows(filtered);
   };
 
+  // Return book
   const returnBook = async (borrowId: number) => {
     const prevBorrows = [...filteredBorrows];
     setFilteredBorrows((prev) =>
@@ -90,7 +100,6 @@ export default function Borrows() {
 
     try {
       await axios.put(`/api/borrows/${borrowId}/return`);
-
       const res = await axios.get<Borrow[]>("/api/borrows");
       setBorrows(res.data);
       setFilteredBorrows(res.data);
@@ -100,12 +109,38 @@ export default function Borrows() {
     }
   };
 
+  // Create new borrow
+  const createBorrow = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      await axios.post("/api/borrows", {
+        book_id: newBorrowData.book_id,
+        member_id: newBorrowData.member_id,
+      });
+
+      const res = await axios.get<Borrow[]>("/api/borrows");
+      setBorrows(res.data);
+      setFilteredBorrows(res.data);
+
+      setIsDialogOpen(false);
+      toast.success("Entered successfully");
+      setNewBorrowData({ book_id: "", member_id: "" });
+    } catch (err) {
+      toast.error(getErrorMessage(err));
+      console.error("Failed to create borrow:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <main className="p-4">
       {isLoading ? (
         <Spinner />
       ) : (
-        <main>
+        <>
           <div className="flex justify-between mb-4 items-center">
             <form
               id="searchForm"
@@ -147,7 +182,70 @@ export default function Borrows() {
                 <Search />
               </button>
             </form>
+
+            <div>
+              <button
+                className="p-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                onClick={() => setIsDialogOpen(true)}
+              >
+                <Plus />
+              </button>
+            </div>
           </div>
+
+          {/* Dialog */}
+          {isDialogOpen && (
+            <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+              <div className="bg-background p-6 rounded-md w-80 shadow-lg">
+                <h2 className="text-lg font-semibold mb-4">Create Borrow</h2>
+                <form onSubmit={createBorrow} className="flex flex-col gap-3">
+                  <input
+                    type="number"
+                    placeholder="Book ID"
+                    required
+                    value={newBorrowData.book_id}
+                    onChange={(e) =>
+                      setNewBorrowData({
+                        ...newBorrowData,
+                        book_id: e.target.value,
+                      })
+                    }
+                    className="p-2 border border-border rounded bg-input"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Member ID"
+                    required
+                    value={newBorrowData.member_id}
+                    onChange={(e) =>
+                      setNewBorrowData({
+                        ...newBorrowData,
+                        member_id: e.target.value,
+                      })
+                    }
+                    className="p-2 border border-border rounded bg-input"
+                  />
+
+                  <div className="flex justify-end gap-2 mt-2">
+                    <button
+                      type="button"
+                      className="px-3 py-2 rounded-md bg-muted hover:bg-muted/80 transition"
+                      onClick={() => setIsDialogOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition"
+                    >
+                      {isSubmitting ? "Saving..." : "Create"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
           <p className="text-right mb-2 text-muted-foreground">
             {filteredBorrows.length} borrows
@@ -227,7 +325,7 @@ export default function Borrows() {
               ))}
             </tbody>
           </table>
-        </main>
+        </>
       )}
     </main>
   );

@@ -1,5 +1,5 @@
 import { getConnection } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   let db;
@@ -24,6 +24,56 @@ export async function GET() {
     return NextResponse.json(rows);
   } catch (error: any) {
     console.error("GET borrows error:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
+  } finally {
+    if (db) await db.end();
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const { book_id, member_id } = await req.json();
+
+  if (!book_id || !member_id) {
+    return NextResponse.json(
+      { error: "Book ID and Member ID are required" },
+      { status: 400 }
+    );
+  }
+
+  let db;
+
+  try {
+    db = await getConnection();
+
+    const [existingBorrows] = await db.execute(
+      `SELECT * FROM borrow WHERE book_id = ? AND status = 'borrowed'`,
+      [book_id]
+    );
+
+    if ((existingBorrows as any[]).length > 0) {
+      return NextResponse.json(
+        { error: "This book is currently not available" },
+        { status: 400 }
+      );
+    }
+
+    const [result] = await db.execute(
+      `
+      INSERT INTO borrow (member_id, book_id, due_date)
+      VALUES (?, ?, DATE_ADD(CURDATE(), INTERVAL 14 DAY))
+      `,
+      [member_id, book_id]
+    );
+
+    return NextResponse.json({
+      message: "Borrow created successfully",
+      borrowId: (result as any).insertId,
+    });
+  } catch (error: any) {
+    console.error("POST borrow error:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
