@@ -10,6 +10,7 @@ import { HiUserPlus, HiUsers } from "react-icons/hi2";
 import { FaBook } from "react-icons/fa";
 import { ImBooks } from "react-icons/im";
 import { GrTransaction } from "react-icons/gr";
+import { BarChart3 } from "lucide-react";
 
 interface MenuItem {
   name: string;
@@ -38,6 +39,7 @@ export default function Sidebar() {
       href: "/dashboard/borrows",
       icon: <GrTransaction />,
     },
+    { name: "Reports", href: "/dashboard/reports", icon: <BarChart3 /> },
   ];
 
   return (
