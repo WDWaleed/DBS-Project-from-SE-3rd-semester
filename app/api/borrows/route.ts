@@ -48,6 +48,26 @@ export async function POST(req: NextRequest) {
   try {
     db = await getConnection();
 
+    // Check if book exists
+    const [bookExists] = (await db.execute(
+      "SELECT book_id FROM book WHERE book_id = ?",
+      [book_id]
+    )) as any;
+
+    if (bookExists.length === 0) {
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
+    }
+
+    // Check if member exists
+    const [memberExists] = (await db.execute(
+      "SELECT member_id FROM member WHERE member_id = ?",
+      [member_id]
+    )) as any;
+
+    if (memberExists.length === 0) {
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    }
+
     const [existingBorrows] = await db.execute(
       `SELECT * FROM borrow WHERE book_id = ? AND status = 'borrowed'`,
       [book_id]
@@ -55,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     if ((existingBorrows as any[]).length > 0) {
       return NextResponse.json(
-        { error: "This book is currently not available" },
+        { error: "The book is currently unavailable" },
         { status: 400 }
       );
     }

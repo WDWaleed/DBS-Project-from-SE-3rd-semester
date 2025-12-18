@@ -6,6 +6,7 @@ import { ArchiveRestore, Search, Edit, Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MdRestore } from "react-icons/md";
+import toast from "react-hot-toast";
 
 interface Member {
   member_id: number;
@@ -118,7 +119,7 @@ export default function Members() {
       );
     } catch (error) {
       console.error("Error deleting member:", error);
-      alert("Failed to delete member");
+      toast.error(error.response?.data?.error || "Failed to delete member");
     }
   };
 
@@ -137,7 +138,7 @@ export default function Members() {
       setEditingMember(null);
     } catch (error) {
       console.error("Error updating member:", error);
-      alert("Failed to update member");
+      toast.error("Failed to update member");
     }
   };
 

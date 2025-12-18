@@ -6,6 +6,7 @@ import { ArchiveRestore, Search, Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MdRestore } from "react-icons/md";
+import toast from "react-hot-toast";
 
 interface Book {
   book_id: number;
@@ -96,7 +97,7 @@ export default function Books() {
       setFilteredBooks(filteredBooks.filter((b) => b.book_id !== bookId));
     } catch (error) {
       console.error("Error deleting book:", error);
-      alert("Failed to delete book");
+      toast.error(error.response?.data?.error || "Failed to delete book");
     }
   };
 

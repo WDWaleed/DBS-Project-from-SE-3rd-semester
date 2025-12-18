@@ -98,7 +98,7 @@ export default function AddMember() {
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
-            <option value="banned">Active</option>
+            <option value="banned">Banned</option>
           </select>
           <button className="bg-primary text-primary-foreground p-2 rounded-sm hover:bg-primary/80 transition">
             Submit
