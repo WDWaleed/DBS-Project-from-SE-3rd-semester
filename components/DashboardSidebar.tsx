@@ -32,8 +32,10 @@ export default function Sidebar() {
   const menuItems: MenuItem[] = [
     { name: "Add Member", href: "/dashboard/addmember", icon: <HiUserPlus /> },
     { name: "Add Book", href: "/dashboard/addbook", icon: <FaBook /> },
+    { name: "Add Author", href: "/dashboard/addauthor", icon: <FaBook /> },
     { name: "View Members", href: "/dashboard/members", icon: <HiUsers /> },
     { name: "View Books", href: "/dashboard/books", icon: <ImBooks /> },
+    { name: "View Authors", href: "/dashboard/authors", icon: <HiUsers /> },
     {
       name: "Borrow / Return",
       href: "/dashboard/borrows",
