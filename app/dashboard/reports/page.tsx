@@ -34,6 +34,11 @@ export default function Reports() {
       name: "Borrow Duration Stats",
       description: "Average and range of borrow durations",
     },
+    {
+      id: "books-by-genre",
+      name: "Books by Genre",
+      description: "Count of books grouped by genre",
+    },
   ];
 
   const fetchReport = async (reportId: string) => {
