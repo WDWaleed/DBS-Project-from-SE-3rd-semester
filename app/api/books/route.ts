@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     const {
       title,
-      author,
+      author_id,
       genre,
       isbn,
       publication_year,
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     if (
       !title ||
-      !author ||
+      !author_id ||
       !genre ||
       !isbn ||
       !publication_year ||
@@ -58,20 +58,16 @@ export async function POST(req: Request) {
 
     db = await getConnection();
 
-    // Find or create author
-    let [authorRows] = await db.execute(
-      "SELECT author_id FROM author WHERE name = ?",
-      [author]
-    );
-    let author_id;
-    if (authorRows.length > 0) {
-      author_id = authorRows[0].author_id;
-    } else {
-      const [insertResult] = await db.execute(
-        "INSERT INTO author (name) VALUES (?)",
-        [author]
+    // Check if author exists
+    const [authorRows] = (await db.execute(
+      "SELECT author_id FROM author WHERE author_id = ?",
+      [author_id]
+    )) as any;
+    if (authorRows.length === 0) {
+      return NextResponse.json(
+        { error: "Invalid author selected" },
+        { status: 400 }
       );
-      author_id = insertResult.insertId;
     }
 
     const [result] = await db.execute<ResultSetHeader>(

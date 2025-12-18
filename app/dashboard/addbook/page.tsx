@@ -1,12 +1,17 @@
 "use client";
 import { getErrorMessage } from "@/lib/utils/helpers";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+
+interface Author {
+  author_id: number;
+  name: string;
+}
 
 interface BookData {
   title: string;
-  author: string;
+  author_id: number;
   genre: string;
   isbn: string;
   publication_year: string;
@@ -15,15 +20,28 @@ interface BookData {
 }
 
 export default function AddBook() {
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [formData, setFormData] = useState<BookData>({
     title: "",
-    author: "",
+    author_id: 0,
     genre: "",
     isbn: "",
     publication_year: "2025",
     shelf_location: "",
     status: "available",
   });
+
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const res = await axios.get<Author[]>("/api/authors");
+        setAuthors(res.data);
+      } catch (error) {
+        console.error("Error fetching authors:", error);
+      }
+    };
+    fetchAuthors();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -69,18 +87,22 @@ export default function AddBook() {
             maxLength={255}
             className=" bg-input border-border border p-2 rounded-sm"
           />
-          <input
-            type="text"
-            name="author"
-            value={formData.author}
+          <select
+            name="author_id"
+            value={formData.author_id}
             onChange={(e) =>
-              setFormData({ ...formData, author: e.target.value })
+              setFormData({ ...formData, author_id: Number(e.target.value) })
             }
             required
-            placeholder="Author"
-            maxLength={255}
             className=" bg-input border-border border p-2 rounded-sm"
-          />
+          >
+            <option value="">Select Author</option>
+            {authors.map((author) => (
+              <option key={author.author_id} value={author.author_id}>
+                {author.name}
+              </option>
+            ))}
+          </select>
           <input
             type="text"
             name="genre"
