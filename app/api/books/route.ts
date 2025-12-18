@@ -6,7 +6,11 @@ export async function GET() {
   let db;
   try {
     db = await getConnection();
-    const [rows] = await db.execute("SELECT * FROM book");
+    const [rows] = await db.execute(`
+      SELECT b.book_id, b.title, a.name as author, b.genre, b.isbn, b.publication_year, b.shelf_location, b.status
+      FROM book b
+      JOIN author a ON b.author_id = a.author_id
+    `);
     return NextResponse.json(rows);
   } catch (error: any) {
     console.error("GET Error:", error);
@@ -54,10 +58,26 @@ export async function POST(req: Request) {
 
     db = await getConnection();
 
+    // Find or create author
+    let [authorRows] = await db.execute(
+      "SELECT author_id FROM author WHERE name = ?",
+      [author]
+    );
+    let author_id;
+    if (authorRows.length > 0) {
+      author_id = authorRows[0].author_id;
+    } else {
+      const [insertResult] = await db.execute(
+        "INSERT INTO author (name) VALUES (?)",
+        [author]
+      );
+      author_id = insertResult.insertId;
+    }
+
     const [result] = await db.execute<ResultSetHeader>(
-      `INSERT INTO book (title, author, genre, isbn, publication_year, shelf_location, status)
+      `INSERT INTO book (title, author_id, genre, isbn, publication_year, shelf_location, status)
    VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [title, author, genre, isbn, publication_year, shelf_location, status]
+      [title, author_id, genre, isbn, publication_year, shelf_location, status]
     );
 
     return NextResponse.json({

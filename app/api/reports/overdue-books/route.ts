@@ -9,7 +9,7 @@ export async function GET() {
     const [rows] = await db.execute(`
       SELECT
         b.title,
-        b.author,
+        a.name AS author,
         m.name AS member_name,
         m.email,
         br.borrow_date,
@@ -17,6 +17,7 @@ export async function GET() {
         DATEDIFF(CURDATE(), br.due_date) AS days_overdue
       FROM borrow br
       INNER JOIN book b ON br.book_id = b.book_id
+      INNER JOIN author a ON b.author_id = a.author_id
       INNER JOIN member m ON br.member_id = m.member_id
       WHERE br.status = 'borrowed'
         AND br.due_date < CURDATE()

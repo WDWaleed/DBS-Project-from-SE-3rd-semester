@@ -129,8 +129,7 @@ VALUES
 
 INSERT INTO
     Member (
-        first_name,
-        last_name,
+        name,
         email,
         phone,
         address,
@@ -139,8 +138,7 @@ INSERT INTO
     )
 VALUES
     (
-        'Ali',
-        'Khan',
+        'Ali Khan',
         'ali.khan@example.com',
         '03001234567',
         'Lahore, Pakistan',
@@ -148,8 +146,7 @@ VALUES
         'active'
     ),
     (
-        'Sara',
-        'Ahmed',
+        'Sara Ahmed',
         'sara.ahmed@example.com',
         '03017654321',
         'Karachi, Pakistan',
@@ -157,8 +154,7 @@ VALUES
         'active'
     ),
     (
-        'Bilal',
-        'Hussain',
+        'Bilal Hussain',
         'bilal.hussain@example.com',
         '03019876543',
         'Islamabad, Pakistan',
@@ -311,18 +307,19 @@ DELIMITER / /
 CREATE PROCEDURE get_books_by_genre (IN genre_param VARCHAR(100))
 BEGIN
 SELECT
-    book_id,
-    title,
-    author,
-    isbn,
-    publication_year,
-    status
+    b.book_id,
+    b.title,
+    a.name AS author,
+    b.isbn,
+    b.publication_year,
+    b.status
 FROM
-    book
+    book b
+    JOIN author a ON b.author_id = a.author_id
 WHERE
-    genre = genre_param
+    b.genre = genre_param
 ORDER BY
-    title;
+    b.title;
 
 END;
 

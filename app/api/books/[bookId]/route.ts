@@ -37,11 +37,27 @@ export async function PUT(
 
     db = await getConnection();
 
+    // Find or create author
+    let [authorRows] = await db.execute(
+      "SELECT author_id FROM author WHERE name = ?",
+      [author]
+    );
+    let author_id;
+    if (authorRows.length > 0) {
+      author_id = authorRows[0].author_id;
+    } else {
+      const [insertResult] = await db.execute(
+        "INSERT INTO author (name) VALUES (?)",
+        [author]
+      );
+      author_id = insertResult.insertId;
+    }
+
     const [result] = await db.execute<ResultSetHeader>(
-      `UPDATE book SET title = ?, author = ?, genre = ?, isbn = ?, publication_year = ?, shelf_location = ?, status = ? WHERE book_id = ?`,
+      `UPDATE book SET title = ?, author_id = ?, genre = ?, isbn = ?, publication_year = ?, shelf_location = ?, status = ? WHERE book_id = ?`,
       [
         title,
-        author,
+        author_id,
         genre,
         isbn,
         publication_year,

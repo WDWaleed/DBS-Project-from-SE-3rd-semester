@@ -2,7 +2,7 @@
 
 import Spinner from "@/components/atoms/Spinner";
 import axios from "axios";
-import { ArchiveRestore, Search, Edit, Trash2 } from "lucide-react";
+import { ArchiveRestore, Search, Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MdRestore } from "react-icons/md";
@@ -26,17 +26,6 @@ export default function Books() {
   const [searchFormData, setSearchFormData] = useState({
     query: "",
     category: "title",
-  });
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
-  const [editFormData, setEditFormData] = useState({
-    title: "",
-    author: "",
-    genre: "",
-    isbn: "",
-    publication_year: "",
-    shelf_location: "",
-    status: "",
   });
 
   // Fetch books on page load
@@ -98,20 +87,6 @@ export default function Books() {
     setFilteredBooks(filtered);
   };
 
-  const handleEdit = (book: Book) => {
-    setEditingBook(book);
-    setEditFormData({
-      title: book.title,
-      author: book.author,
-      genre: book.genre,
-      isbn: book.isbn,
-      publication_year: book.publication_year.toString(),
-      shelf_location: book.shelf_location,
-      status: book.status,
-    });
-    setIsEditDialogOpen(true);
-  };
-
   const handleDelete = async (bookId: number) => {
     if (!confirm("Are you sure you want to delete this book?")) return;
 
@@ -122,34 +97,6 @@ export default function Books() {
     } catch (error) {
       console.error("Error deleting book:", error);
       alert("Failed to delete book");
-    }
-  };
-
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingBook) return;
-
-    try {
-      await axios.put(`/api/books/${editingBook.book_id}`, {
-        ...editFormData,
-        publication_year: parseInt(editFormData.publication_year),
-      });
-      const updatedBooks = books.map((b) =>
-        b.book_id === editingBook.book_id
-          ? {
-              ...b,
-              ...editFormData,
-              publication_year: parseInt(editFormData.publication_year),
-            }
-          : b
-      );
-      setBooks(updatedBooks);
-      setFilteredBooks(updatedBooks);
-      setIsEditDialogOpen(false);
-      setEditingBook(null);
-    } catch (error) {
-      console.error("Error updating book:", error);
-      alert("Failed to update book");
     }
   };
 
@@ -288,12 +235,6 @@ export default function Books() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                     <div className="flex gap-2">
                       <button
-                        onClick={() => handleEdit(book)}
-                        className="text-blue-500 hover:text-blue-700"
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
                         onClick={() => handleDelete(book.book_id)}
                         className="text-red-500 hover:text-red-700"
                       >
@@ -305,154 +246,6 @@ export default function Books() {
               ))}
             </tbody>
           </table>
-
-          {/* Edit Dialog */}
-          {isEditDialogOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-background p-6 rounded-lg shadow-lg w-full max-w-md">
-                <h2 className="text-lg font-semibold mb-4">Edit Book</h2>
-                <form onSubmit={handleEditSubmit}>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Title
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.title}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          title: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Author
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.author}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          author: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Genre
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.genre}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          genre: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      ISBN
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.isbn}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          isbn: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Publication Year
-                    </label>
-                    <input
-                      type="number"
-                      value={editFormData.publication_year}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          publication_year: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Shelf Location
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.shelf_location}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          shelf_location: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    />
-                  </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">
-                      Status
-                    </label>
-                    <select
-                      value={editFormData.status}
-                      onChange={(e) =>
-                        setEditFormData({
-                          ...editFormData,
-                          status: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-border rounded-md bg-input text-foreground"
-                      required
-                    >
-                      <option value="available">Available</option>
-                      <option value="borrowed">Borrowed</option>
-                      <option value="lost">Lost</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditDialogOpen(false)}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
         </main>
       )}
     </main>
