@@ -20,34 +20,9 @@ export default function Reports() {
       description: "Books that are past their due date",
     },
     {
-      id: "unborrowed-books",
-      name: "Unborrowed Books",
-      description: "Books that have never been borrowed",
-    },
-    {
-      id: "inactive-members",
-      name: "Inactive Members",
-      description: "Members who have never borrowed books",
-    },
-    {
-      id: "popular-books",
-      name: "Popular Books",
-      description: "Books borrowed more than 3 times",
-    },
-    {
       id: "frequent-borrowers",
       name: "Frequent Borrowers",
       description: "Members who have borrowed more than 5 books",
-    },
-    {
-      id: "overdue-members",
-      name: "Overdue Members",
-      description: "Members with more than 2 overdue books",
-    },
-    {
-      id: "available",
-      name: "Available Books",
-      description: "Books currently available for borrowing",
     },
     {
       id: "member-stats",
@@ -55,29 +30,9 @@ export default function Reports() {
       description: "Borrowing statistics for all members",
     },
     {
-      id: "popular-than-average",
-      name: "Above Average Books",
-      description: "Books borrowed more than average",
-    },
-    {
-      id: "genre-statistics",
-      name: "Genre Statistics",
-      description: "Statistics grouped by book genre",
-    },
-    {
       id: "borrow-duration-stats",
       name: "Borrow Duration Stats",
       description: "Average and range of borrow durations",
-    },
-    {
-      id: "monthly-activity",
-      name: "Monthly Activity",
-      description: "Borrowing activity by month",
-    },
-    {
-      id: "top-authors",
-      name: "Top Authors",
-      description: "Most borrowed authors",
     },
   ];
 
