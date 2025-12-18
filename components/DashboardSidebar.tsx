@@ -26,7 +26,7 @@ export default function Sidebar() {
     setIsOpen(!isOpen);
   };
 
-  const user = getToken();
+  // const user = getToken();
 
   const menuItems: MenuItem[] = [
     { name: "Add Member", href: "/dashboard/addmember", icon: <HiUserPlus /> },
